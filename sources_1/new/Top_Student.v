@@ -48,6 +48,7 @@
             reg [25:0] clkCustomCount  = 0;
             reg [11:0] customVol = 12'b111111111111; //12'b
             
+            
             //>>>debounce
                 reg debouncedButton = 0;
             
@@ -56,41 +57,39 @@
             
             // <<<<<<<,,clock stuff end
             
+            //page  start>>>
+         
+            
+            
+            //page end <<<<
+            
             
             
             // data registers >>>>>>>>>>>>>>>>>>>
-                reg [7:0] selectedNote = 8'b10000000; // bit position is the note
-                reg [7:0] playingNote =8'b10000000; //
-                reg [25:0] note0tone = 305810; // use integer here. goes from 0 (silent), 1(do), 2(re), 3(mi) .... 8(do again)
-                reg [25:0] note1tone = 272479; // use integer here. 
-                reg [25:0] note2tone = 242718; // use integer here. 
-                reg [25:0] note3tone = 229042; // use integer here. 
-                reg [25:0] note4tone = 204081; // use integer here. 
-                reg [25:0] note5tone = 181818; // use integer here. 
-                reg [25:0] note6tone = 161969; // use integer here. 
-                reg [25:0] note7tone = 152905; // use integer here. 
+              reg [0:31] page_1 = 32'h17701349;
+                      reg [0:31] page_2 = 32'h01234568;
+                      reg [0:31] page_3 = 32'h87653210;
+                      reg [0:31] page_4 = 32'h14602874;
+                reg [31:0] selectedNote = 32'b10000000000000000000000000000000;
+ // bit position is the note
+                reg [31:0] playingNote = 32'b10000000000000000000000000000000;
                 reg [31:0] BPMCount = 0;
                 reg [31:0] BPMMaxCount = 50000000; // 0.5secs
                 
+                reg [3:0] currentToneCode = 0;
+                reg [25:0] currentToneFreq = (currentToneCode == 0 ) ? 305810 : //do 0
+                                             (currentToneCode == 1 ) ? 272479 : //re 1
+                                             (currentToneCode == 2 ) ? 242718 : // mi 2 
+                                             (currentToneCode == 3 ) ? 229042 : //fa 3 
+                                             (currentToneCode == 4 ) ? 204081 : //so 4
+                                             (currentToneCode == 5 ) ? 181818 : // la 5
+                                             (currentToneCode == 6 ) ? 161969 : // ti 6
+                                             (currentToneCode == 7 ) ? 152905 : // do 7
+                                              3 ; // otherwise, mute
+                                             
+                                             
                 
-                
-             
-                
             
-            
-            // data registers <<<<<<<<<<<<<<<<
-           
-            
-            
-        
-//        wire debouncedButtonWire;
-//         debouncer debounce (
-//                           .btn(btnC),
-//                           .clk(clock),
-//                           .debouncedbtn_in(debouncedButton),
-//                           .debouncedbtn_out(debouncedButton)
-//                          );
-      
         always @ (posedge clock) begin 
         
        
@@ -99,79 +98,141 @@
               if (BPMCount >= BPMMaxCount) begin // check if counter reached maximum count
                  BPMCount = 0;
                  
-               if (playingNote == 8'b10000000) begin  
-                     playingNote = 8'b01000000;
-                     clkCustomMax = note1tone;
-                 end else if (playingNote == 8'b01000000) begin 
-                     playingNote = 8'b00100000;
-                     clkCustomMax = note2tone;
-                 end else if (playingNote == 8'b00100000) begin 
-                     playingNote = 8'b00010000;  
-                     clkCustomMax = note3tone;          
-                 end else if (playingNote == 8'b00010000) begin 
-                     playingNote = 8'b00001000;
-                     clkCustomMax = note4tone;
-                 end else if (playingNote == 8'b00001000) begin 
-                     playingNote = 8'b00000100;
-                     clkCustomMax = note5tone;
-                 end else if (playingNote == 8'b00000100) begin 
-                     playingNote = 8'b00000010;
-                     clkCustomMax = note6tone;
-                 end else if (playingNote == 8'b00000010) begin 
-                     playingNote = 8'b00000001;
-                     clkCustomMax = note7tone;
-                 end else if (playingNote == 8'b00000001) begin 
-                     playingNote = 8'b10000000;
-                     clkCustomMax = note0tone;
+               if (playingNote == 32'b00000000000000000000000000000001) begin  
+                     playingNote = 32'b10000000000000000000000000000000;
+                     currentToneCode = page_1[0:3];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b10000000000000000000000000000000) begin 
+                     playingNote = 32'b01000000000000000000000000000000;
+                     currentToneCode = page_1[4:7];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b01000000000000000000000000000000) begin 
+                     playingNote = 32'b00100000000000000000000000000000;
+                     currentToneCode = page_1[8:11];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00100000000000000000000000000000) begin 
+                     playingNote = 32'b00010000000000000000000000000000;
+                     currentToneCode = page_1[12:15];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00010000000000000000000000000000) begin 
+                     playingNote = 32'b00001000000000000000000000000000;
+                     currentToneCode = page_1[16:19];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00001000000000000000000000000000) begin 
+                     playingNote = 32'b00000100000000000000000000000000;
+                     currentToneCode = page_1[20:23];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000100000000000000000000000000) begin 
+                     playingNote = 32'b00000010000000000000000000000000;
+                     currentToneCode = page_1[24:27];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000010000000000000000000000000) begin 
+                     playingNote = 32'b00000001000000000000000000000000;
+                     currentToneCode = page_2[0:3];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000001000000000000000000000000) begin 
+                     playingNote = 32'b00000000100000000000000000000000;
+                     currentToneCode = page_2[4:7];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000100000000000000000000000) begin 
+                     playingNote = 32'b00000000010000000000000000000000;
+                     currentToneCode = page_2[8:11];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000010000000000000000000000) begin 
+                     playingNote = 32'b00000000001000000000000000000000;
+                     currentToneCode = page_2[12:15];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000001000000000000000000000) begin 
+                     playingNote = 32'b00000000000100000000000000000000;
+                     currentToneCode = page_2[16:19];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000100000000000000000000) begin 
+                     playingNote = 32'b00000000000010000000000000000000;
+                     currentToneCode = page_2[20:23];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000010000000000000000000) begin 
+                     playingNote = 32'b00000000000001000000000000000000;
+                     currentToneCode = page_2[24:27];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000001000000000000000000) begin 
+                     playingNote = 32'b00000000000000100000000000000000;
+                     currentToneCode = page_2[28:31];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000100000000000000000) begin 
+                     playingNote = 32'b00000000000000010000000000000000;
+                     currentToneCode = page_3[0:3];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000010000000000000000) begin 
+                     playingNote = 32'b00000000000000001000000000000000;
+                     currentToneCode = page_3[4:7];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000001000000000000000) begin 
+                     playingNote = 32'b00000000000000000100000000000000;
+                     currentToneCode = page_3[8:11];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000100000000000000) begin 
+                     playingNote = 32'b00000000000000000010000000000000;
+                     currentToneCode = page_3[12:15];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000010000000000000) begin 
+                     playingNote = 32'b00000000000000000001000000000000;
+                     currentToneCode = page_3[16:19];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000001000000000000) begin 
+                     playingNote = 32'b00000000000000000000100000000000;
+                     currentToneCode = page_3[20:23];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000100000000000) begin 
+                     playingNote = 32'b00000000000000000000010000000000;
+                     currentToneCode = page_3[24:27];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000010000000000) begin 
+                         playingNote = 32'b00000000000000000000001000000000;
+                         currentToneCode = page_3[28:31];
+                         clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000001000000000) begin 
+                     playingNote = 32'b00000000000000000000000100000000;
+                     currentToneCode = page_4[0:3];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000100000000) begin 
+                     playingNote = 32'b00000000000000000000000010000000;
+                     currentToneCode = page_4[4:7];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000010000000) begin 
+                     playingNote = 32'b00000000000000000000000001000000;
+                     currentToneCode = page_4[8:11];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000001000000) begin 
+                     playingNote = 32'b00000000000000000000000000100000;
+                     currentToneCode = page_4[12:15];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000000100000) begin 
+                     playingNote = 32'b00000000000000000000000000010000;
+                     currentToneCode = page_4[16:19];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000000010000) begin 
+                     playingNote = 32'b00000000000000000000000000001000;
+                     currentToneCode = page_4[20:23];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000000001000) begin 
+                     playingNote = 32'b00000000000000000000000000000100;
+                     currentToneCode = page_4[24:27];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000000000100) begin 
+                     playingNote = 32'b00000000000000000000000000000010;
+                     currentToneCode = page_4[28:31];
+                     clkCustomMax = currentToneFreq;
+                 end else if (playingNote == 32'b00000000000000000000000000000010) begin 
+                     playingNote = 32'b00000000000000000000000000000001;
+                     currentToneCode = page_4[28:31];
+                     clkCustomMax = currentToneFreq;
                  end
+
+
+
+
             end
-              BPMCount <= BPMCount + 1; // increment counter
-            
-              // <<<< cycle thru notes end
-               
-               //>>>>>>>>>>>>>play note start
-               // look at playingnote, depending on value, read notextone and change clkCustomCount
-//               if(playingNote == 3'b100) begin
-//                    clkCustomMax = note0tone;
-//               end else if(playingNote == 3'b010) begin
-//                    clkCustomMax = note1tone;
-//               end else if(playingNote == 3'b001) begin
-//                    clkCustomMax = note2tone;
-//               end
-                     
-               
-               //<<<<<<<<<play note end
-               
-               
-               
-               
-       // << 
-            
-               
-               
-//               if(debouncedButton == 1) begin
-//                  beepState = 1;
-//                  beepCount = 0;
-//                 // audio_out[11] <= 0;
-                
-//               //   100000000  
-//               end
-               
-              
-               
-//               if(beepState == 1) begin
-//                    beepCount <= beepCount + 1;
-                    
-                    
-//                    if(beepCount >= 100000000)begin
-//                        beepState <= 0;
-//                        audio_out[11] <= 0;
-//                    end
-                
-               
-//               end
-               
-               
+              BPMCount <= BPMCount + 1; // increment counter              
                clk50Mcount <= clk50Mcount + 1;
                clk20kcount <= clk20kcount + 1; 
            
